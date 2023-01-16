@@ -207,4 +207,47 @@ describe("Testing", function () {
       );
     });
   });
+
+  describe("AMM", () => {
+    async function deployAmm() {
+      const [owner, alice, bob] = await ethers.getSigners();
+
+      const AMM = await ethers.getContractFactory("AMM");
+      const amm = await AMM.deploy();
+
+      const TokenA = await ethers.getContractFactory("TokenA");
+      const tokenA = await TokenA.deploy();
+
+      const TokenB = await ethers.getContractFactory("TokenB");
+      const tokenB = await TokenB.deploy();
+
+      const ONE_M = ethers.utils.parseEther("1000000");
+      await tokenA.approve(amm.address, ONE_M);
+      await tokenB.approve(amm.address, ONE_M);
+      await amm.provideLiquidity(tokenA.address, tokenB.address, ONE_M, ONE_M);
+
+      await tokenA.mint(alice.address, ethers.utils.parseEther("100"));
+
+      return { amm, tokenA, tokenB, owner, alice, bob, ONE_M };
+    }
+
+    it("Exchange 100 tokens A", async () => {
+      const { amm, tokenA, tokenB, owner, alice, ONE_M } = await loadFixture(
+        deployAmm
+      );
+
+      var amount = ethers.utils.parseEther("100");
+      await tokenA.connect(alice).approve(amm.address, amount);
+      await amm
+        .connect(alice)
+        .exchangeTokens(tokenA.address, tokenB.address, amount);
+
+      const ONE_B = ONE_M.mul(ONE_M);
+      const newTokenBAmount = ONE_M.sub(ONE_B.div(ONE_M.add(amount)));
+
+      expect(await tokenB.balanceOf(alice.address)).to.be.equal(
+        newTokenBAmount
+      );
+    });
+  });
 });
