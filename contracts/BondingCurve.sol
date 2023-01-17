@@ -14,7 +14,7 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
     /// @dev The amount of Eth is calculated following a linear bonding curve
     /// @param numTokens Amount of tokens to purchase
     function mint(uint256 numTokens) public payable {
-        uint256 priceEth = _priceForTokens(numTokens);
+        uint256 priceEth = _ethPriceForTokens(numTokens);
         require(msg.value >= priceEth, "Not enough Eth sent");
 
         poolBalance += msg.value;
@@ -26,14 +26,16 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
     /// @dev The amount of Eth is calculated following a linear bonding curve
     /// @param numTokens Amount of tokens to burn
     function burn(uint256 numTokens) public override {
-        uint256 etherAmount = _etherToSend(numTokens);
+        uint256 etherAmount = _getEthByNumberOfTokens(numTokens);
         _burn(msg.sender, numTokens);
 
         poolBalance -= etherAmount;
-        payable(msg.sender).transfer(etherAmount);
+        uint256 net = (etherAmount * 90) / 100;
+
+        payable(msg.sender).transfer(net);
     }
 
-    function _priceForTokens(
+    function _ethPriceForTokens(
         uint256 numTokens
     ) internal view returns (uint256) {
         uint256 x = totalSupply() + numTokens;
@@ -43,7 +45,9 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
         return area - poolBalance;
     }
 
-    function _etherToSend(uint256 numTokens) internal view returns (uint256) {
+    function _getEthByNumberOfTokens(
+        uint256 numTokens
+    ) internal view returns (uint256) {
         uint256 x = totalSupply() - numTokens;
         uint256 y = (4 * x) / 987654321;
         uint256 area = _calculateArea(x, y);
@@ -58,7 +62,13 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
         return (x * y) / 2 / 10 ** decimals();
     }
 
-    function estimateEth(uint256 amountTokens) external view returns (uint256) {
-        return _priceForTokens(amountTokens);
+    /// @notice Estimate the amount of Eth based on amount of tokens to receive
+    /// @dev The amount of Eth is calculated with the following formula: (4 * x) / 987654321
+    /// @param amountTokens Amount of tokens to burn
+    /// @return Amount of Eth to send in order to receive 'amountTokens'
+    function estimateEthToSend(
+        uint256 amountTokens
+    ) external view returns (uint256) {
+        return _ethPriceForTokens(amountTokens);
     }
 }

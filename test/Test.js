@@ -139,7 +139,7 @@ describe("Testing", function () {
       const { bondingCT, owner, alice } = await loadFixture(deployBondingC);
 
       var tokensToPurchase = ethers.utils.parseEther("15000");
-      var ethEstimation = await bondingCT.estimateEth(tokensToPurchase);
+      var ethEstimation = await bondingCT.estimateEthToSend(tokensToPurchase);
       await bondingCT.mint(tokensToPurchase, { value: ethEstimation });
 
       // pool balance
@@ -160,12 +160,12 @@ describe("Testing", function () {
 
       // 15 K
       var tokensToPurchase = ethers.utils.parseEther("15000");
-      var ethEstimation = await bondingCT.estimateEth(tokensToPurchase);
+      var ethEstimation = await bondingCT.estimateEthToSend(tokensToPurchase);
       await bondingCT.mint(tokensToPurchase, { value: ethEstimation });
 
       // 5 K additionally
       var tokensToPurchase = ethers.utils.parseEther("5000");
-      var ethEstimation = await bondingCT.estimateEth(tokensToPurchase);
+      var ethEstimation = await bondingCT.estimateEthToSend(tokensToPurchase);
 
       await bondingCT
         .connect(alice)
@@ -189,15 +189,16 @@ describe("Testing", function () {
 
       // 15 K
       var tokensToPurchase = ethers.utils.parseEther("20000");
-      var ethEstimation = await bondingCT.estimateEth(tokensToPurchase);
+      var ethEstimation = await bondingCT.estimateEthToSend(tokensToPurchase);
       await bondingCT
         .connect(alice)
         .mint(tokensToPurchase, { value: ethEstimation });
 
       // burn 5K
+      var prevScEthBal = await ethers.provider.getBalance(bondingCT.address);
       var prevBalEther = await bondingCT.poolBalance();
       var tokensToBurn = ethers.utils.parseEther("5000");
-      await bondingCT.connect(alice).burn(tokensToBurn);
+      var tx = await bondingCT.connect(alice).burn(tokensToBurn);
       var aftBalEther = await await bondingCT.poolBalance();
       var estimateEthReceived = ethers.utils.parseEther("0.35437499999557");
       var delta = ethers.BigNumber.from("10000000");
@@ -205,6 +206,11 @@ describe("Testing", function () {
         estimateEthReceived,
         delta
       );
+
+      // eth received by purchaser
+      var aftScEthBal = await ethers.provider.getBalance(bondingCT.address);
+      var netTransfer = estimateEthReceived.mul(90).div(100);
+      expect(prevScEthBal.sub(aftScEthBal)).to.be.closeTo(netTransfer, delta);
     });
   });
 

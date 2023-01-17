@@ -52,7 +52,7 @@ contract AMM {
     }
 
     /// @notice Exchange origin token for an amount of destination token
-    /// @dev The amount of destinatinon to recibe is based on token A * token B = K
+    /// @dev The amount of destination to recibe is based on: token A * token B = K
     /// @param originTok Address of origin token
     /// @param destTok Address of destination token
     /// @param amountToken Amount to deposit of the origin token
