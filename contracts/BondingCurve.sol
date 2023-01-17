@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
     uint256 public poolBalance;
+    uint256 private ethProfitAcc;
 
     constructor() ERC20("Bonding Curve Token", "BCT") {}
 
@@ -30,7 +31,9 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
         _burn(msg.sender, numTokens);
 
         poolBalance -= etherAmount;
-        uint256 net = (etherAmount * 90) / 100;
+        uint256 fee = (etherAmount * 10) / 100;
+        uint256 net = etherAmount - fee;
+        ethProfitAcc += fee;
 
         payable(msg.sender).transfer(net);
     }
@@ -70,5 +73,9 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
         uint256 amountTokens
     ) external view returns (uint256) {
         return _ethPriceForTokens(amountTokens);
+    }
+
+    function withdrawEth() external onlyOwner {
+        payable(msg.sender).transfer(ethProfitAcc);
     }
 }

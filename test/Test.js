@@ -111,6 +111,20 @@ describe("Testing", function () {
       );
     });
 
+    it("Deposit tokens to get Eth", async () => {
+      const { tokenSale, owner, alice } = await loadFixture(deployTokenSSC);
+      var ONE_ETHER = ethers.utils.parseEther("1");
+      var amountTokens = ONE_ETHER.mul(10_000);
+      var tx = tokenSale.connect(alice).purchaseTokens({ value: ONE_ETHER });
+
+      // deposit
+      var tx = await tokenSale.connect(alice).depositTokens(amountTokens);
+      await expect(tx).to.changeEtherBalance(
+        alice.address,
+        ONE_ETHER.mul(90).div(100)
+      );
+    });
+
     it("Reached max supply", async () => {
       const { tokenSale, owner } = await loadFixture(deployTokenSSC);
       const MAX_CAP = ethers.utils.parseEther(String(22_000_000));
@@ -211,6 +225,29 @@ describe("Testing", function () {
       var aftScEthBal = await ethers.provider.getBalance(bondingCT.address);
       var netTransfer = estimateEthReceived.mul(90).div(100);
       expect(prevScEthBal.sub(aftScEthBal)).to.be.closeTo(netTransfer, delta);
+    });
+
+    it("Gets all Eth from Smart Contract", async () => {
+      const { bondingCT, owner, alice } = await loadFixture(deployBondingC);
+      // mint 15 K
+      var tokensToPurchase = ethers.utils.parseEther("20000");
+      var ethEstimation = await bondingCT.estimateEthToSend(tokensToPurchase);
+      await bondingCT
+        .connect(alice)
+        .mint(tokensToPurchase, { value: ethEstimation });
+      // burn 5K
+      var tokensToBurn = ethers.utils.parseEther("5000");
+      var tx = await bondingCT.connect(alice).burn(tokensToBurn);
+
+      // withdraw
+      var befScEthBal = await ethers.provider.getBalance(bondingCT.address);
+      await bondingCT.withdrawEth();
+      var estimateEthReceived = ethers.utils.parseEther("0.35437499999557");
+      var feeTransfer = estimateEthReceived.mul(10).div(100);
+
+      var aftScEthBal = await ethers.provider.getBalance(bondingCT.address);
+      var delta = ethers.BigNumber.from("10000000");
+      expect(befScEthBal.sub(aftScEthBal)).to.be.closeTo(feeTransfer, delta);
     });
   });
 

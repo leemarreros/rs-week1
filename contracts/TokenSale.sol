@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TokenSale is ERC20Capped, Ownable {
     uint256 public constant MAX_CAP = 22 * 10 ** 6 * 10 ** 18;
+    uint256 public constant RATIO = 10_000;
 
     mapping(address => bool) banned;
 
@@ -53,7 +54,17 @@ contract TokenSale is ERC20Capped, Ownable {
     /// @notice Allows to obtain tokens through a deposit of Eth
     /// @notice Exchange ratio is 1 Eth = 10,000 tokens
     function purchaseTokens() external payable {
-        uint256 amountTokens = msg.value * 10_000;
+        uint256 amountTokens = msg.value * RATIO;
         _mint(msg.sender, amountTokens);
+    }
+
+    /// @notice Deposits tokens to be burn in exchange to get Eth
+    /// @dev The ratio used is 1 Eth = 10,000 tokens. Takes 10% fee
+    /// @param amount Amount of tokens to be burn to receive Eth with 10% fee
+    function depositTokens(uint256 amount) external {
+        _burn(msg.sender, amount);
+
+        uint256 ethToSendBack = amount / RATIO;
+        payable(msg.sender).transfer((ethToSendBack * 90) / 100);
     }
 }
