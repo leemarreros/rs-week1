@@ -249,6 +249,20 @@ describe("Testing", function () {
       var delta = ethers.BigNumber.from("10000000");
       expect(befScEthBal.sub(aftScEthBal)).to.be.closeTo(feeTransfer, delta);
     });
+
+    it("Purchase low Quantity of tokens", async () => {
+      var MIN_Q = 100;
+      for (let index = 1; index < MIN_Q; index++) {
+        const { bondingCT, owner, alice } = await loadFixture(deployBondingC);
+        var tokensToPurchase = ethers.utils.parseEther(String(index));
+        var ethEstimation = await bondingCT.estimateEthToSend(tokensToPurchase);
+        await bondingCT
+          .connect(alice)
+          .mint(tokensToPurchase, { value: ethEstimation });
+
+        expect(await bondingCT.balanceOf(alice.address)).to.be.greaterThan(0);
+      }
+    });
   });
 
   describe("AMM", () => {

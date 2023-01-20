@@ -5,10 +5,10 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TokenSale is ERC20Capped, Ownable {
-    uint256 public constant MAX_CAP = 22 * 10 ** 6 * 10 ** 18;
+    uint256 public constant MAX_CAP = 22_000_000 * 10 ** 18;
     uint256 public constant RATIO = 10_000;
 
-    mapping(address => bool) banned;
+    mapping(address => bool) public banned;
 
     constructor() ERC20("TEST Token", "TTKN") ERC20Capped(MAX_CAP) {}
 
@@ -33,6 +33,12 @@ contract TokenSale is ERC20Capped, Ownable {
     /// @param account Address to be banned
     function banAccount(address account) external onlyOwner {
         banned[account] = true;
+    }
+
+    /// @notice Unbans address and allows it to receiveing/sending tokens
+    /// @param account Address to be unbanned
+    function unbanAccount(address account) external onlyOwner {
+        banned[account] = false;
     }
 
     function _beforeTokenTransfer(

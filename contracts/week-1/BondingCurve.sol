@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
+    uint256 constant CURVE_DIVISOR = 987654321;
+    uint256 constant CURVE_MULTIPLIER = 4;
     uint256 public poolBalance;
     uint256 private ethProfitAcc;
 
@@ -35,6 +37,7 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
         uint256 net = etherAmount - fee;
         ethProfitAcc += fee;
 
+        require(address(this).balance >= net, "Not enough Eth in SC");
         payable(msg.sender).transfer(net);
     }
 
@@ -42,7 +45,7 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
         uint256 numTokens
     ) internal view returns (uint256) {
         uint256 x = totalSupply() + numTokens;
-        uint256 y = (4 * x) / 987654321;
+        uint256 y = (CURVE_MULTIPLIER * x) / CURVE_DIVISOR;
         uint256 area = _calculateArea(x, y);
 
         return area - poolBalance;
@@ -52,7 +55,7 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
         uint256 numTokens
     ) internal view returns (uint256) {
         uint256 x = totalSupply() - numTokens;
-        uint256 y = (4 * x) / 987654321;
+        uint256 y = (CURVE_MULTIPLIER * x) / CURVE_DIVISOR;
         uint256 area = _calculateArea(x, y);
 
         return poolBalance - area;

@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TokenA is ERC20, Ownable {
     constructor() ERC20("Token A", "TKNA") {
-        _mint(msg.sender, 1000000 * 10 ** decimals());
+        _mint(msg.sender, 1_000_000 * 10 ** decimals());
     }
 
     function mint(address to, uint256 amount) public onlyOwner {
@@ -17,7 +17,7 @@ contract TokenA is ERC20, Ownable {
 
 contract TokenB is ERC20, Ownable {
     constructor() ERC20("Token B", "TKNB") {
-        _mint(msg.sender, 1000000 * 10 ** decimals());
+        _mint(msg.sender, 1_000_000 * 10 ** decimals());
     }
 
     function mint(address to, uint256 amount) public onlyOwner {
@@ -27,8 +27,8 @@ contract TokenB is ERC20, Ownable {
 
 contract AMM {
     uint256 public K;
-    IERC20 tokenA;
-    IERC20 tokenB;
+    IERC20 public tokenA;
+    IERC20 public tokenB;
 
     /// @notice Adds liquidity for token A and token B
     /// @dev Both tokens A and B are deposited to AMM SC

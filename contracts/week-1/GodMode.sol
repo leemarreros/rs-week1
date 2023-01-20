@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract GodMode is ERC20Capped, Ownable {
-    uint256 public constant MAX_CAP = 100 * 10 ** 6 * 10 ** 18;
+    uint256 public constant MAX_CAP = 100_000_000 * 10 ** 18;
 
     constructor() ERC20("TEST Token", "TTKN") ERC20Capped(MAX_CAP) {}
 
