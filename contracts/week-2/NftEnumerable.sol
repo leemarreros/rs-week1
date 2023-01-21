@@ -9,17 +9,14 @@ import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "hardhat/console.sol";
 
 contract EnumerableNFT is ERC721, ERC721Enumerable, AccessControl {
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-
     constructor() ERC721("Enumerable NFT", "ENMNFT") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(MINTER_ROLE, msg.sender);
     }
 
     function safeMint(
         address to,
         uint256 tokenId
-    ) public onlyRole(MINTER_ROLE) {
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(tokenId > 0 && tokenId < 21, "Id must be between 1 to 20");
         _safeMint(to, tokenId);
     }

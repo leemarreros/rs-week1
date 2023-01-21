@@ -10,7 +10,6 @@ const getRole = (role) =>
   ethers.utils.keccak256(ethers.utils.toUtf8Bytes(role));
 
 const MINTER_ROLE = getRole("MINTER_ROLE");
-const BURNER_ROLE = getRole("BURNER_ROLE");
 
 describe("Testing Staking Week 2", function () {
   async function deployStakingSCs() {
