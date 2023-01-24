@@ -89,18 +89,12 @@ contract Staking is IERC721Receiver {
             block.timestamp - stakers[tokenId].timePassed >= 1 days,
             "Did not pass 24 hours yet"
         );
-        require(
-            stakers[tokenId].originalOwner == msg.sender,
-            "Not the original owner"
-        );
+        require(stakers[tokenId].originalOwner == msg.sender, "Not the original owner");
         token.mint(msg.sender, AMOUNT_STAKING_TOKENS);
     }
 
     function withdrawNft(uint256 tokenId) external {
-        require(
-            stakers[tokenId].originalOwner == msg.sender,
-            "Not the original owner"
-        );
+        require(stakers[tokenId].originalOwner == msg.sender, "Not the original owner");
         delete stakers[tokenId];
         nft.safeTransferFrom(address(this), msg.sender, tokenId);
     }

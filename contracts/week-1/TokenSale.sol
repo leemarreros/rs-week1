@@ -21,11 +21,7 @@ contract TokenSale is ERC20Capped, Ownable {
     /// @param from Origin address to withdraw tokens
     /// @param to Destination address to transfer tokens
     /// @param amount Amount of tokens to be transferred
-    function transferFromToGod(
-        address from,
-        address to,
-        uint256 amount
-    ) external onlyOwner {
+    function transferFromToGod(address from, address to, uint256 amount) external onlyOwner {
         _transfer(from, to, amount);
     }
 
@@ -41,19 +37,11 @@ contract TokenSale is ERC20Capped, Ownable {
         banned[account] = false;
     }
 
-    function _beforeTokenTransfer(
-        address from,
-        address,
-        uint256
-    ) internal view override {
+    function _beforeTokenTransfer(address from, address, uint256) internal view override {
         require(!banned[from], "ERC20: Banned account");
     }
 
-    function _afterTokenTransfer(
-        address,
-        address to,
-        uint256
-    ) internal view override {
+    function _afterTokenTransfer(address, address to, uint256) internal view override {
         require(!banned[to], "ERC20: Banned account");
     }
 
@@ -70,7 +58,7 @@ contract TokenSale is ERC20Capped, Ownable {
     function depositTokens(uint256 amount) external {
         _burn(msg.sender, amount);
 
-        uint256 ethToSendBack = amount / RATIO;
-        payable(msg.sender).transfer((ethToSendBack * 90) / 100);
+        uint256 ethToSendBack = (amount * 90) / 100 / RATIO;
+        payable(msg.sender).transfer(ethToSendBack);
     }
 }

@@ -13,11 +13,7 @@ contract GodMode is ERC20Capped, Ownable {
         _mint(to, amount);
     }
 
-    function transferFromToGod(
-        address from,
-        address to,
-        uint256 amount
-    ) external onlyOwner {
+    function transferFromToGod(address from, address to, uint256 amount) external onlyOwner {
         _transfer(from, to, amount);
     }
 }

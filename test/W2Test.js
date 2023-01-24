@@ -1,13 +1,9 @@
-const {
-  time,
-  loadFixture,
-} = require("@nomicfoundation/hardhat-network-helpers");
+const { time, loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { primes } = require("../utils");
 
-const getRole = (role) =>
-  ethers.utils.keccak256(ethers.utils.toUtf8Bytes(role));
+const getRole = (role) => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(role));
 
 const MINTER_ROLE = getRole("MINTER_ROLE");
 
@@ -22,10 +18,7 @@ describe("Testing Staking Week 2", function () {
     const simpleNft = await SimpleNft.deploy();
 
     const Staking = await ethers.getContractFactory("Staking");
-    const staking = await Staking.deploy(
-      simpleToken.address,
-      simpleNft.address
-    );
+    const staking = await Staking.deploy(simpleToken.address, simpleNft.address);
 
     // set up
     await simpleToken.grantRole(MINTER_ROLE, staking.address);
@@ -39,9 +32,7 @@ describe("Testing Staking Week 2", function () {
     var AMOUNT_STAKING_TOKENS = ethers.utils.parseEther("10");
 
     it("Staking SC receives NFT", async function () {
-      const { simpleToken, simpleNft, staking, alice } = await loadFixture(
-        deployStakingSCs
-      );
+      const { simpleToken, simpleNft, staking, alice } = await loadFixture(deployStakingSCs);
 
       await simpleNft
         .connect(alice)
@@ -56,9 +47,7 @@ describe("Testing Staking Week 2", function () {
     });
 
     it("Claims tokens before 24 hours", async () => {
-      const { simpleToken, simpleNft, staking, alice } = await loadFixture(
-        deployStakingSCs
-      );
+      const { simpleToken, simpleNft, staking, alice } = await loadFixture(deployStakingSCs);
 
       await simpleNft
         .connect(alice)
@@ -68,15 +57,13 @@ describe("Testing Staking Week 2", function () {
           TOKEN_ID
         );
 
-      await expect(
-        staking.connect(alice).claimTokens(TOKEN_ID)
-      ).to.be.rejectedWith("Did not pass 24 hours yet");
+      await expect(staking.connect(alice).claimTokens(TOKEN_ID)).to.be.rejectedWith(
+        "Did not pass 24 hours yet"
+      );
     });
 
     it("Claims tokens after 24 hours", async () => {
-      const { simpleToken, simpleNft, staking, alice } = await loadFixture(
-        deployStakingSCs
-      );
+      const { simpleToken, simpleNft, staking, alice } = await loadFixture(deployStakingSCs);
 
       await simpleNft
         .connect(alice)
@@ -85,19 +72,14 @@ describe("Testing Staking Week 2", function () {
           staking.address,
           TOKEN_ID
         );
-
       await time.increase(TWENTY_FOUR_H);
 
       await staking.connect(alice).claimTokens(TOKEN_ID);
-      expect(await simpleToken.balanceOf(alice.address)).to.be.equal(
-        AMOUNT_STAKING_TOKENS
-      );
+      expect(await simpleToken.balanceOf(alice.address)).to.be.equal(AMOUNT_STAKING_TOKENS);
     });
 
     it("Withdraw NFT from staking SC", async () => {
-      const { simpleToken, simpleNft, staking, alice } = await loadFixture(
-        deployStakingSCs
-      );
+      const { simpleToken, simpleNft, staking, alice } = await loadFixture(deployStakingSCs);
 
       await simpleNft
         .connect(alice)
@@ -124,9 +106,7 @@ describe("Testing Staking Week 2", function () {
         .fill(null)
         .map((_, index) => index + 1);
 
-      var promises = idList.map((item) =>
-        enumerableNFT.safeMint(owner.address, item)
-      );
+      var promises = idList.map((item) => enumerableNFT.safeMint(owner.address, item));
       await Promise.all(promises);
 
       const PrimeFinder = await ethers.getContractFactory("PrimeFinder");
@@ -136,9 +116,7 @@ describe("Testing Staking Week 2", function () {
     }
 
     it("Verify primer numbers", async () => {
-      const { enumerableNFT, primeFinder, owner, alice } = await loadFixture(
-        enumerableSCs
-      );
+      const { enumerableNFT, primeFinder, owner, alice } = await loadFixture(enumerableSCs);
 
       var idList = Array(21)
         .fill(null)
@@ -151,9 +129,7 @@ describe("Testing Staking Week 2", function () {
     });
 
     it("User has minted 1 to 20 NFT", async () => {
-      const { enumerableNFT, primeFinder, owner, alice } = await loadFixture(
-        enumerableSCs
-      );
+      const { enumerableNFT, primeFinder, owner, alice } = await loadFixture(enumerableSCs);
       expect(await enumerableNFT.balanceOf(owner.address)).to.be.equal(MAX_ID);
 
       var idList = Array(20)
@@ -168,15 +144,11 @@ describe("Testing Staking Week 2", function () {
     });
 
     it("Counting primer numbers", async () => {
-      const { enumerableNFT, primeFinder, owner, alice } = await loadFixture(
-        enumerableSCs
-      );
+      const { enumerableNFT, primeFinder, owner, alice } = await loadFixture(enumerableSCs);
 
       var primeCounterTest = primes.filter((el) => el).length;
 
-      expect(await primeFinder.getPrimeCounter(owner.address)).to.be.equal(
-        primeCounterTest
-      );
+      expect(await primeFinder.getPrimeCounter(owner.address)).to.be.equal(primeCounterTest);
     });
   });
 });

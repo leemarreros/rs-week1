@@ -26,7 +26,7 @@ contract TokenB is ERC20, Ownable {
 }
 
 contract AMM {
-    uint256 public K;
+    uint256 public k;
     IERC20 public tokenA;
     IERC20 public tokenB;
 
@@ -42,7 +42,7 @@ contract AMM {
         uint256 _amountTokenA,
         uint256 _amountTokenB
     ) external {
-        K = _amountTokenA * _amountTokenB;
+        k = _amountTokenA * _amountTokenB;
 
         tokenA = IERC20(tokenAAdd);
         tokenB = IERC20(tokenBAdd);
@@ -52,17 +52,13 @@ contract AMM {
     }
 
     /// @notice Exchange origin token for an amount of destination token
-    /// @dev The amount of destination to recibe is based on: token A * token B = K
+    /// @dev The amount of destination to recibe is based on: token A * token B = k
     /// @param originTok Address of origin token
     /// @param destTok Address of destination token
     /// @param amountToken Amount to deposit of the origin token
-    function exchangeTokens(
-        IERC20 originTok,
-        IERC20 destTok,
-        uint256 amountToken
-    ) external {
+    function exchangeTokens(IERC20 originTok, IERC20 destTok, uint256 amountToken) external {
         originTok.transferFrom(msg.sender, address(this), amountToken);
-        uint256 newDestTokBal = K / originTok.balanceOf(address(this));
+        uint256 newDestTokBal = k / originTok.balanceOf(address(this));
         uint256 delta = destTok.balanceOf(address(this)) - newDestTokBal;
         destTok.transfer(msg.sender, delta);
     }

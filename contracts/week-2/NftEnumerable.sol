@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -13,10 +13,7 @@ contract EnumerableNFT is ERC721, ERC721Enumerable, AccessControl {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function safeMint(
-        address to,
-        uint256 tokenId
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function safeMint(address to, uint256 tokenId) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(tokenId > 0 && tokenId < 21, "Id must be between 1 to 20");
         _safeMint(to, tokenId);
     }
@@ -32,12 +29,7 @@ contract EnumerableNFT is ERC721, ERC721Enumerable, AccessControl {
 
     function supportsInterface(
         bytes4 interfaceId
-    )
-        public
-        view
-        override(ERC721, ERC721Enumerable, AccessControl)
-        returns (bool)
-    {
+    ) public view override(ERC721, ERC721Enumerable, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }
@@ -48,16 +40,14 @@ contract PrimeFinder {
     uint256 public constant MAX_LIMIT_PRIME = 20;
     bool[] public inversePrimeList = new bool[](MAX_LIMIT_PRIME + 1);
 
-    IERC721Ext nft;
+    IERC721Ext public nft;
 
     constructor(IERC721Ext _nft) {
         nft = _nft;
         _buildPrimeList();
     }
 
-    function getPrimeCounter(
-        address _account
-    ) external view returns (uint256 amountPrime) {
+    function getPrimeCounter(address _account) external view returns (uint256 amountPrime) {
         uint256 balance = nft.balanceOf(_account);
 
         for (uint256 i; i < balance; i++) {

@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
-    uint256 constant CURVE_DIVISOR = 987654321;
-    uint256 constant CURVE_MULTIPLIER = 4;
+    uint256 public constant CURVE_DIVISOR = 987654321;
+    uint256 public constant CURVE_MULTIPLIER = 4;
     uint256 public poolBalance;
     uint256 private ethProfitAcc;
 
@@ -41,9 +41,7 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
         payable(msg.sender).transfer(net);
     }
 
-    function _ethPriceForTokens(
-        uint256 numTokens
-    ) internal view returns (uint256) {
+    function _ethPriceForTokens(uint256 numTokens) internal view returns (uint256) {
         uint256 x = totalSupply() + numTokens;
         uint256 y = (CURVE_MULTIPLIER * x) / CURVE_DIVISOR;
         uint256 area = _calculateArea(x, y);
@@ -51,9 +49,7 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
         return area - poolBalance;
     }
 
-    function _getEthByNumberOfTokens(
-        uint256 numTokens
-    ) internal view returns (uint256) {
+    function _getEthByNumberOfTokens(uint256 numTokens) internal view returns (uint256) {
         uint256 x = totalSupply() - numTokens;
         uint256 y = (CURVE_MULTIPLIER * x) / CURVE_DIVISOR;
         uint256 area = _calculateArea(x, y);
@@ -61,10 +57,7 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
         return poolBalance - area;
     }
 
-    function _calculateArea(
-        uint256 x,
-        uint256 y
-    ) internal view returns (uint256) {
+    function _calculateArea(uint256 x, uint256 y) internal view returns (uint256) {
         return (x * y) / 2 / 10 ** decimals();
     }
 
@@ -72,9 +65,7 @@ contract BondingCurveToken is ERC20, ERC20Burnable, Ownable {
     /// @dev The amount of Eth is calculated with the following formula: (4 * x) / 987654321
     /// @param amountTokens Amount of tokens to burn
     /// @return Amount of Eth to send in order to receive 'amountTokens'
-    function estimateEthToSend(
-        uint256 amountTokens
-    ) external view returns (uint256) {
+    function estimateEthToSend(uint256 amountTokens) external view returns (uint256) {
         return _ethPriceForTokens(amountTokens);
     }
 
